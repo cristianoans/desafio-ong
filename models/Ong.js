@@ -1,5 +1,7 @@
 const { Model, DataTypes } = require('sequelize');
 const Doacao = require('./Doacao');
+const sequelize = require('../db/db');
+
 
 class Ong extends Model {}
 
