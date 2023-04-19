@@ -4,11 +4,11 @@ const Ong = require('../models/Ong')
 
 ong.route('/')
     .get(async (req, res) => {
-        
+
         try {
             const ongs = await Ong.findAll();
             res.status(200).json(ongs);
-        } catch (err) { 
+        } catch (err) {
             res.status(500).json(err);
         }
 
@@ -33,7 +33,19 @@ ong.route('/')
         res.json({ mensagem: "rota ong PUT" })
     })
     .delete(async (req, res) => {
-        res.json({ mensagem: "rota ong DELETE" })
+        const { id } = req.body;
+
+        if (!id) {
+            return res.status(400).json({ mensagem: "campo obrigatório não informado" });
+        }
+
+        try{
+            const response = await Ong.destroy({where: {id: id}});
+            res.status(200).json({ mensagem: `Ong deletada com sucesso, id: ${id}` });
+        }catch(err){
+            res.status(500).json(err);
+        }
+
     });
 
 module.exports = ong;
