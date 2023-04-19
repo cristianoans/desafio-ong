@@ -9,7 +9,7 @@ Doacao.init({
         allowNull: false
     },
     valor: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.FLOAT,
         allowNull: false
     }
 }, 
