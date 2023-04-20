@@ -44,27 +44,27 @@ ong.route('/')
 
         try {
             await ongEncontrada.update({ nome, tipo, desc, data_criacao });
-            res.status(200).json({ mensagem: `Ong atualizado com sucesso, id: ${ongEncontrada.id}` });
+            res.status(200).json(ongEncontrada);
         } catch (err) {
             res.status(500).json(err);
         }
 
     })
     .delete(async (req, res) => {
-        const { id } = req.body;
-
-        if (!id) {
-            return res.status(400).json({ mensagem: "campo obrigatório não informado" });
-        }
-
-        const ongEncontrada = Ong.findByPk(id);
-
-        if (!ongEncontrada) {
-            return res.status(404).json({ mensagem: "Ong não encontrada" });
-        }
-
         try {
-            const response = await Ong.destroy(ongEncontrada);
+            const { id } = req.body;
+
+            if (!id) {
+                return res.status(400).json({ mensagem: "campo obrigatório não informado" });
+            }
+
+            const ongEncontrada = await Ong.findByPk(id);
+
+            if (!ongEncontrada) {
+                return res.status(404).json({ mensagem: "Ong não encontrada" });
+            }
+
+            await Ong.destroy({ where: { id } });
             res.status(200).json({ mensagem: `Ong deletada com sucesso, id: ${id}` });
         } catch (err) {
             res.status(500).json(err);

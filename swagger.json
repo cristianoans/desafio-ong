@@ -9,9 +9,17 @@
     "/ongs": {
       "get": {
         "summary": "Obter todas as ONGs",
+        "tags": ["Rotas relacionadas Ongs"],
         "responses": {
           "200": {
-            "description": "Lista de ONGs"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OngList"
+                }
+              }
+            }
           },
           "500": {
             "description": "Erro interno do servidor"
@@ -20,12 +28,13 @@
       },
       "post": {
         "summary": "Criar nova ONG",
+        "tags": ["Rotas relacionadas Ongs"],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Ong"
+                "$ref": "#/components/schemas/OngRequest"
               }
             }
           }
@@ -36,7 +45,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OngSuccess"
+                  "$ref": "#/components/schemas/OngResponse"
                 }
               }
             }
@@ -51,12 +60,13 @@
       },
       "put": {
         "summary": "Atualizar ONG existente",
+        "tags": ["Rotas relacionadas Ongs"],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UpdateOng"
+                "$ref": "#/components/schemas/OngRequest"
               }
             }
           }
@@ -67,7 +77,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessMessage"
+                  "$ref": "#/components/schemas/OngResponse"
                 }
               }
             }
@@ -84,33 +94,150 @@
         }
       },
       "delete": {
-        "summary": "Deletar ONG existente",
+        "summary": "Deleta uma ONG existente",
+        "tags": ["Rotas relacionadas Ongs"],
         "requestBody": {
+          "description": "ID da ONG a ser deletada",
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/DeleteOng"
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "example": 1
+                  }
+                }
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Ong deletada com sucesso",
+            "description": "OK",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SuccessMessage"
+                  "type": "object",
+                  "properties": {
+                    "mensagem": {
+                      "type": "string",
+                      "example": "Ong deletada com sucesso, id: 1"
+                    }
+                  }
                 }
               }
             }
           },
           "400": {
-            "description": "Campo obrigatório não informado"
+            "description": "campo obrigatório não informado"
           },
           "404": {
             "description": "Ong não encontrada"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      }
+    },
+    "/ong/doacoes": {
+      "get": {
+        "summary": "Obter doações de uma ONG ou todas as doações",
+        "tags": ["Rotas relacionadas Doações"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "ongId",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID da ONG para buscar doações específicas",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de doações ou total de doações da ONG",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/Doacoes"
+                    },
+                    {
+                      "$ref": "#/components/schemas/TotalDoacoes"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "ONG não encontrada"
+          },
+          "500": {
+            "description": "Erro interno do servidor"
+          }
+        }
+      },
+      "post": {
+        "summary": "Inserir uma nova doação",
+        "tags": ["Rotas relacionadas Doações"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "doador": {
+                    "type": "string",
+                    "description": "Nome do doador",
+                    "example": "João Silva"
+                  },
+                  "valor": {
+                    "type": "number",
+                    "format": "float",
+                    "description": "Valor da doação",
+                    "example": 50.0
+                  },
+                  "ongId": {
+                    "type": "integer",
+                    "description": "Identificador único da ONG que receberá a doação",
+                    "example": 1
+                  }
+                },
+                "required": ["doador", "valor", "ongId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Doação criada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mensagem": {
+                      "type": "string",
+                      "example": "doação de R$ 50.00 para a Ong: ONG Amor Animal"
+                    }
+                  },
+                  "required": ["mensagem"]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Campos obrigatórios ausentes"
+          },
+          "404": {
+            "description": "ONG não encontrada"
           },
           "500": {
             "description": "Erro interno do servidor"
@@ -121,7 +248,7 @@
   },
   "components": {
     "schemas": {
-      "Ong": {
+      "OngRequest": {
         "type": "object",
         "properties": {
           "cnpj": {
@@ -153,7 +280,7 @@
         },
         "required": ["cnpj", "nome", "tipo", "data_criacao", "desc"]
       },
-      "OngSuccess": {
+      "OngResponse": {
         "type": "object",
         "properties": {
           "id": {
@@ -201,6 +328,103 @@
           }
         },
         "required": ["cnpj", "nome", "tipo", "data_criacao", "desc"]
+      },
+      "OngList": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "example": 1
+            },
+            "cnpj": {
+              "type": "string",
+              "example": "32979648000100"
+            },
+            "nome": {
+              "type": "string",
+              "example": "Meu cachorrinho"
+            },
+            "tipo": {
+              "type": "string",
+              "example": "fundação"
+            },
+            "data_criacao": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2023-04-19T03:00:00.000Z"
+            },
+            "desc": {
+              "type": "string",
+              "example": "resgate de cachorrinhos abandonados"
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2023-04-20T12:53:35.000Z"
+            },
+            "updatedAt": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2023-04-20T12:53:35.000Z"
+            },
+            "deletedAt": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true,
+              "example": null
+            }
+          }
+        }
+      },
+      "Doacoes": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Identificador único da doação",
+            "example": 1
+          },
+          "doador": {
+            "type": "string",
+            "description": "Nome do doador",
+            "example": "Cristiano Oliveira"
+          },
+          "valor": {
+            "type": "number",
+            "format": "float",
+            "description": "Valor da doação",
+            "example": 50.0
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Data de inclusão do registro da ONG no banco de dados",
+            "example": "2023-04-20T19:42:24.455Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Data do último update do registro da ONG no banco de dados",
+            "example": "2023-04-20T19:42:24.455Z"
+          },
+          "ongId": {
+            "type": "integer",
+            "description": "Identificador único da ONG que recebeu a doação",
+            "example": 1
+          }
+        }
+      },
+      "TotalDoacoes": {
+        "type": "object",
+        "properties": {
+          "mensagem": {
+            "type": "string",
+            "example": "A Ong: ONG Amor Animal recebeu R$ 100.00 em doações"
+          }
+        },
+        "required": ["mensagem"]
       }
     }
   }
