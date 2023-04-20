@@ -23,7 +23,7 @@ ong.route('/')
 
         try {
             const novaOng = await Ong.create(req.body);
-            res.status(201).json({ mensagem: `Ong criada com sucesso, id: ${novaOng.id}` });
+            res.status(201).json(novaOng);
         } catch (err) {
             res.status(400).json(err);
         }

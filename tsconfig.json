@@ -1,6 +1,5 @@
-
 {
     "compilerOptions": {
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
     }
 }
